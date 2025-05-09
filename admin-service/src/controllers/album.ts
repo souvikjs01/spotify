@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import getBuffer from "../lib/datauri.js";
 import cloudinary from "cloudinary"
 import prisma from "../config/prisma.js";
+import { redisClient } from "../lib/redis.js";
 
 
 export interface AuthenticatedRequest extends Request {
@@ -50,6 +51,10 @@ export const addAlbum = async (req: AuthenticatedRequest, res: Response) => {
             }
         })
     
+        if(redisClient.isReady) {
+            await redisClient.del("albums")
+            console.log("Cache invalidated for albums");
+        }
         res.status(200).json({
             message: "Album created",
             album: result
@@ -90,6 +95,10 @@ export const deleteAlbum = async (req: AuthenticatedRequest, res: Response) => {
             }
         })
 
+        if(redisClient.isReady) {
+            await redisClient.del("albums");
+            console.log("Cache invalidate for albums");
+        }
         res.status(200).json({
             message: "Album deleted successfully"
         })
@@ -104,8 +113,24 @@ export const deleteAlbum = async (req: AuthenticatedRequest, res: Response) => {
 
 export const getAllAlbums = async(req: Request, res: Response) => {
     try {
-        const albums = await prisma.album.findMany()
-        res.status(200).json(albums)
+        let albums;
+        const CAHCHE_EXPIRE = 1800;
+        if(redisClient.isReady) {
+            albums = await redisClient.get("albums")
+        }
+        if(albums) {
+            console.log("cache hit");
+            res.json(JSON.parse(albums))            
+            return;
+        } else {
+            albums = await prisma.album.findMany()
+            if(redisClient.isReady) {
+                await redisClient.set("albums", JSON.stringify(albums), {
+                    EX: CAHCHE_EXPIRE
+                })
+            }
+            res.status(200).json(albums)
+        }
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -116,8 +141,20 @@ export const getAllAlbums = async(req: Request, res: Response) => {
 
 export const getAllSongsOfAlbum = async(req: Request, res: Response) => {
     try {
+        let albumSongs;
+        const CAHCHE_EXPIRE = 1800
         const { id } = req.params
-        const albumSongs = await prisma.album.findUnique({
+
+        if(redisClient.isReady) {
+            const cacheData = await redisClient.get(`album_songs_${id}`)
+            if(cacheData) {
+                console.log("cache hit");
+                res.json(JSON.parse(cacheData))
+                return
+            }
+        }
+
+        albumSongs = await prisma.album.findUnique({
             where: {
                 id,
             },
@@ -125,11 +162,18 @@ export const getAllSongsOfAlbum = async(req: Request, res: Response) => {
                 song: true
             }
         })
+
         if(albumSongs?.song.length === 0 || !albumSongs?.song) {
             res.status(404).json({
                 message: "No songs available"
             })
             return
+        }
+        
+        if(redisClient.isReady) {
+            await redisClient.set(`album_songs_${id}`, JSON.stringify(albumSongs.song), {
+                EX: CAHCHE_EXPIRE
+            })
         }
         res.status(200).json(albumSongs.song)
     } catch (error) {

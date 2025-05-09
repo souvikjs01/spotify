@@ -3,6 +3,7 @@ import getBuffer from "../lib/datauri.js";
 import cloudinary from "cloudinary"
 import prisma from "../config/prisma.js";
 import { AuthenticatedRequest } from "./album.js";
+import { redisClient } from "../lib/redis.js";
 
 export const addSong = async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -59,6 +60,10 @@ export const addSong = async (req: AuthenticatedRequest, res: Response) => {
             }
         })
     
+        if(redisClient.isReady) {
+            await redisClient.del("songs")
+            console.log("Cache invalidated for albums");
+        }
         res.status(200).json({
             message: "Song added",
         })
@@ -121,6 +126,11 @@ export const addThumbnail = async(req: AuthenticatedRequest, res: Response) => {
             }
         })
 
+        if(redisClient.isReady) {
+            await redisClient.del("songs");
+            console.log("Cache invalidate for song");
+        }
+
         res.status(200).json({
             message: "Thumbnail added",
             song: result
@@ -160,6 +170,11 @@ export const deleteSong = async(req: AuthenticatedRequest, res: Response) => {
                 id: songId
             }
         })
+        
+        if(redisClient.isReady) {
+            await redisClient.del("songs");
+            console.log("Cache invalidate for songs");
+        }
         res.status(200).json({
             message: "Song deleted successfully",
         })
@@ -175,8 +190,24 @@ export const deleteSong = async(req: AuthenticatedRequest, res: Response) => {
 
 export const getAllSongs = async(req: Request, res: Response) => {
     try {
-        const songs = await prisma.song.findMany();
-        res.status(200).json(songs)
+        let songs;
+        const CAHCHE_EXPIRE = 1800;
+        if(redisClient.isReady) {
+            songs = await redisClient.get("songs")
+        } 
+        if(songs) {
+            console.log("cache hit");
+            res.json(JSON.parse(songs))            
+            return;
+        } else {
+            songs = await prisma.song.findMany();
+            if(redisClient.isReady) {
+                await redisClient.set("songs", JSON.stringify(songs), {
+                    EX: CAHCHE_EXPIRE
+                })
+            }
+            res.status(200).json(songs)
+        }
     } catch (error) {
         console.log(error);
         res.status(500).json({

@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 import adminRoutes from "./routes.js";
 import cloudinary from "cloudinary"
 import { redisClient } from "./lib/redis.js";
+import cors from "cors"
 
 dotenv.config()
 
@@ -18,6 +19,7 @@ redisClient.connect().then(() =>{
 })
 
 const app = express()
+app.use(cors())
 const port = process.env.PORT || 8090
 app.use(express.json())
 app.use("/api/v1", adminRoutes);
