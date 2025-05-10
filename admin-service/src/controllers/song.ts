@@ -87,7 +87,7 @@ export const addThumbnail = async(req: AuthenticatedRequest, res: Response) => {
         const songId = req.params.id;
         const audio = await prisma.song.findUnique({
             where: {
-                id: songId
+                id: Number(songId)
             }
         })
 
@@ -119,7 +119,7 @@ export const addThumbnail = async(req: AuthenticatedRequest, res: Response) => {
     
         const result = await prisma.song.update({
             where: {
-                id: songId
+                id: Number(songId)
             },
             data: {
                 thumbnail: cloud.secure_url
@@ -155,7 +155,7 @@ export const deleteSong = async(req: AuthenticatedRequest, res: Response) => {
 
         const audio = await prisma.song.findUnique({
             where: {
-                id: songId
+                id: Number(songId)
             }
         })
         if(!songId) {
@@ -167,7 +167,7 @@ export const deleteSong = async(req: AuthenticatedRequest, res: Response) => {
 
         await prisma.song.delete({
             where: {
-                id: songId
+                id: Number(songId)
             }
         })
         
@@ -221,7 +221,7 @@ export const getSingleSong = async(req: Request, res: Response) => {
         const { id } = req.params
         const song = await prisma.song.findUnique({
             where: {
-                id,
+                id: Number(id),
             }
         })
         res.status(200).json(song)

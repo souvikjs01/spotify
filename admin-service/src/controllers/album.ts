@@ -79,7 +79,7 @@ export const deleteAlbum = async (req: AuthenticatedRequest, res: Response) => {
         const { id } = req.params
         const album = await prisma.album.findUnique({
             where: {
-                id,
+                id: Number(id),
             }
         })
         if(!album) {
@@ -91,7 +91,7 @@ export const deleteAlbum = async (req: AuthenticatedRequest, res: Response) => {
         
         await prisma.album.delete({
             where: {
-                id,
+                id: Number(id),
             }
         })
 
@@ -156,7 +156,7 @@ export const getAllSongsOfAlbum = async(req: Request, res: Response) => {
 
         albumSongs = await prisma.album.findUnique({
             where: {
-                id,
+                id: Number(id),
             },
             select: {
                 song: true
