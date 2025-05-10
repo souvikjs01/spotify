@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Album {
-  id          String   @id @default(uuid())
+  id          Int   @id @default(autoincrement())
   title       String
   description String
   thumbnail   String
@@ -17,7 +17,7 @@ model Album {
 }
 
 model Song {
-  id          String  @id @default(uuid())
+  id          Int @id @default(autoincrement())
   title       String
   description String
   thumbnail   String?
@@ -25,5 +25,5 @@ model Song {
 
   createdAt DateTime @default(now())
   Album     Album?   @relation(fields: [albumId], references: [id], onDelete: Cascade)
-  albumId   String?
+  albumId   Int?
 }
