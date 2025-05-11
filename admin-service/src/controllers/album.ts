@@ -144,38 +144,62 @@ export const getAllSongsOfAlbum = async(req: Request, res: Response) => {
         let albumSongs;
         const CAHCHE_EXPIRE = 1800
         const { id } = req.params
+        // redisClient.del(`album_songs_${id}`);
 
         if(redisClient.isReady) {
-            const cacheData = await redisClient.get(`album_songs_${id}`)
-            if(cacheData) {
-                console.log("cache hit");
-                res.json(JSON.parse(cacheData))
+            albumSongs = await redisClient.get(`album_songs_${id}`);
+        }
+        if(albumSongs) {
+            console.log("cache hit");                       
+            res.json(JSON.parse(albumSongs))
+            return
+        } else {
+            albumSongs = await prisma.album.findUnique({
+                where: {
+                    id: Number(id),
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    thumbnail: true,
+                    song: {
+                        select: {
+                            id: true,
+                            title: true,
+                            description: true,
+                            thumbnail: true,
+                            albumId: true,
+                            audio: true
+                        }
+                    }
+                }
+            });
+
+            if(albumSongs?.song.length === 0 || !albumSongs?.song) {
+                res.status(404).json({
+                    message: "No songs available"
+                })
                 return
             }
-        }
 
-        albumSongs = await prisma.album.findUnique({
-            where: {
-                id: Number(id),
-            },
-            select: {
-                song: true
+            const albumDetails = {
+                album: {
+                    id: albumSongs.id,
+                    title: albumSongs.title,
+                    description: albumSongs.description,
+                    thumbnail: albumSongs.thumbnail
+                },
+                songs: albumSongs.song
             }
-        })
 
-        if(albumSongs?.song.length === 0 || !albumSongs?.song) {
-            res.status(404).json({
-                message: "No songs available"
-            })
-            return
-        }
-        
-        if(redisClient.isReady) {
-            await redisClient.set(`album_songs_${id}`, JSON.stringify(albumSongs.song), {
-                EX: CAHCHE_EXPIRE
-            })
-        }
-        res.status(200).json(albumSongs.song)
+            if(redisClient.isReady) {
+                await redisClient.set(`album_songs_${id}`, JSON.stringify(albumDetails), {
+                    EX: CAHCHE_EXPIRE
+                })
+            } 
+            res.status(200).json(albumDetails)
+        }        
     } catch (error) {
         console.log(error);
         res.status(500).json({

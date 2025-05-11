@@ -18,7 +18,7 @@ export const addSong = async (req: AuthenticatedRequest, res: Response) => {
 
         const isAlbum = await prisma.album.findUnique({
             where: {
-                id: albumId
+                id: Number(albumId)
             }
         })
 
@@ -56,7 +56,7 @@ export const addSong = async (req: AuthenticatedRequest, res: Response) => {
                 title,
                 description,
                 audio: cloud.secure_url,
-                albumId,
+                albumId: Number(albumId),
             }
         })
     
