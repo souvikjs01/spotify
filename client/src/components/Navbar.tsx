@@ -1,8 +1,13 @@
 import { useNavigate } from "react-router-dom"
+import { useUserData } from "../context/UserContext";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const { isAuth, logout } = useUserData()
 
+  const logoutHandler = () => {
+    logout()
+  }
   return (
     <>
       <div className="w-full flex justify-between items-center font-semibold">
@@ -28,9 +33,9 @@ export default function Navbar() {
           <p className="px-4 py-1 cursor-pointer bg-white text-black text-[15px] rounded-full hidden md:block">
             Install App
           </p>
-          {/* {isAuth ? (
+          {isAuth ? (
             <p
-              onClick={logoutUserHanlder}
+              onClick={logoutHandler}
               className="px-4 py-1 cursor-pointer bg-white text-black text-[15px] rounded-full"
             >
               Logout
@@ -42,7 +47,7 @@ export default function Navbar() {
             >
               Login
             </p>
-          )} */}
+          )}
         </div>
       </div>
 

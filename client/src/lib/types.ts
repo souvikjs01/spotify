@@ -13,3 +13,12 @@ export interface Album {
   description:  string;
   thumbnail:   string;
 }
+
+
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  playlist: string[];
+}
