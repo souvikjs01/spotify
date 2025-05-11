@@ -92,3 +92,40 @@ export const userProfile = async (req: AuthenticatedRequest, res: Response) => {
         })
     }
 }
+
+export const addToPlayList = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = req.user?._id;
+        const user = await User.findById(userId);
+
+        if(!user) {
+            res.status(404).json({
+                message: "No user with this id",
+            })
+            return;
+        }
+
+        if(user.playlist.includes(req.params.id)) {
+            const index = user.playlist.indexOf(req.params.id);
+            user.playlist.splice(index, 1);
+
+            await user.save();
+
+            res.json({
+                message: "Remove from playlist"
+            })
+            return;
+        }
+        user.playlist.push(req.params.id);
+        await user.save();
+
+        res.status(200).json({
+            message: "Added to playlist"
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Somethig went wrong"
+        })
+    }
+}
