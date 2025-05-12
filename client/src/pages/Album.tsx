@@ -8,7 +8,7 @@ import { FaBookmark, FaPlay } from "react-icons/fa";
 
 export default function Album() {
   const { isAuth, addToPlaylist } = useUserData();
-  const { fetchAlbumsongs , albumData, albumSongs, setIsPlaying, selectedSong, setSelectedSong, loading } = useSongData();
+  const { fetchAlbumsongs , albumData, albumSongs, setIsPlaying, setSelectedSong, loading } = useSongData();
   const params = useParams<{ id: string }>();  
   useEffect(() => {
     if (params.id) {

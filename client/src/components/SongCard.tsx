@@ -12,7 +12,7 @@ interface Props {
 export default function SongCard({ desc, id, image, name }: Props) {
     const { setSelectedSong, setIsPlaying } = useSongData()
 
-    const { user, addToPlaylist, isAuth } = useUserData();
+    const { addToPlaylist, isAuth } = useUserData();
     
     const saveToPlayListHanlder = () => {
       addToPlaylist(id);
