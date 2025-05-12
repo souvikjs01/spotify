@@ -16,6 +16,11 @@ interface SongContextType {
   song: Song | null;
   nextSong: () => void;
   prevSong: () => void;
+  fetchAlbumsongs: (id: string) => Promise<void>;
+  albumSongs: Song[];
+  albumData: Album | null;
+  fetchSongs: () => Promise<void>;
+  fetchAlbums: () => Promise<void>;
 }
 
 const SongContext = createContext<SongContextType | undefined>(undefined)
@@ -33,7 +38,9 @@ export const SongProvider: React.FC<SongProviderProps> = ({children}) => {
     const [albums, setAlbums] = useState<Album[]>([]);
     const [song, setSong] = useState<Song | null>(null);
     const [index, setIndex] = useState<number>(0);
-    
+    const [albumSongs, setAlbumSongs] = useState<Song[]>([]);
+    const [albumData, setAlbumData] = useState<Album | null>(null);
+
 
 
     const fetchSongs = useCallback(async () => {
@@ -92,6 +99,19 @@ export const SongProvider: React.FC<SongProviderProps> = ({children}) => {
         }
     }, [selectedSong]);
 
+    const fetchAlbumsongs = useCallback(async (id: string) => {
+        try {
+            const { data } = await axios.get<{songs: Song[]; album: Album}>(`${server}/api/v1/album/${id}`);
+            console.log(data);
+            setAlbumSongs(data.songs);
+            setAlbumData(data.album);        
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
         fetchSongs()
         fetchAlbums()
@@ -102,6 +122,8 @@ export const SongProvider: React.FC<SongProviderProps> = ({children}) => {
             value={{ 
                 songs, 
                 albums, 
+                fetchAlbums,
+                fetchSongs,
                 isPlaying, 
                 loading, 
                 selectedSong, 
@@ -111,6 +133,9 @@ export const SongProvider: React.FC<SongProviderProps> = ({children}) => {
                 song,
                 nextSong,
                 prevSong,
+                fetchAlbumsongs,
+                albumData,
+                albumSongs,
             }}    
         >
             {children}

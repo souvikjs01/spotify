@@ -1,6 +1,8 @@
 import { FaMusic } from "react-icons/fa";
+import { useUserData } from "../context/UserContext";
 
 export default function PlayListCard() {
+  const { user, isAuth } = useUserData()
   return (
     <div className="flex items-center p-4 rounded-lg shadow-md cursor-pointer hover:bg-[#ffffff26]">
       <div className="w-10 h-10 bg-gray-600 flex items-center justify-center rounded-md">
@@ -10,8 +12,8 @@ export default function PlayListCard() {
         <h2>My PlayList</h2>
         <p className="text-gray-400 text-sm">
           PlayList •{" "}
-          <span>{"User"}</span>
-          {/* {isAuth ? <span>{user?.name}</span> : <span>{"User"}</span>} */}
+          <span>{"User "}</span>
+          {isAuth ? <span>{user?.name}</span> : <span>{"User"}</span>}
         </p>
       </div>
     </div>

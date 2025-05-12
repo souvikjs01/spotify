@@ -4,6 +4,9 @@ import Login from "./pages/Login"
 import { useUserData } from "./context/UserContext"
 import Loading from "./components/Loading";
 import Register from "./pages/Register";
+import Album from "./pages/Album";
+import Playlist from "./pages/Playlist";
+import Admin from "./pages/Admin";
 
 
 function App() {
@@ -15,6 +18,9 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/album/:id" element={<Album/>}/>
+            <Route path="/playlist" element={isAuth ? <Playlist /> : <Login />}/>
+            <Route path="/admin/dashboard" element={isAuth ? <Admin /> : <Login />}/>
             <Route path="/login" element={isAuth ? <Home /> : <Login />}/>
             <Route path="/register" element={isAuth ? <Home /> : <Register />}/>
           </Routes>

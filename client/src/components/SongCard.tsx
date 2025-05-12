@@ -1,5 +1,6 @@
-import { FaPlay } from "react-icons/fa";
+import { FaBookmark, FaPlay } from "react-icons/fa";
 import { useSongData } from "../context/SongContext";
+import { useUserData } from "../context/UserContext";
 
 interface Props {
     id: string;
@@ -9,7 +10,13 @@ interface Props {
 }
 
 export default function SongCard({ desc, id, image, name }: Props) {
-    const { setSelectedSong, setIsPlaying, } = useSongData()
+    const { setSelectedSong, setIsPlaying } = useSongData()
+
+    const { user, addToPlaylist, isAuth } = useUserData();
+    
+    const saveToPlayListHanlder = () => {
+      addToPlaylist(id);
+    }
   return (
     <div className="min-w-[180px] p-2 px-3 rounded cursor-pointer hover:bg-[#ffffff26] transition-all duration-150">
       <div className="relative group">
@@ -25,14 +32,14 @@ export default function SongCard({ desc, id, image, name }: Props) {
           }}>
             <FaPlay />
           </button>
-          {/* {isAuth && (
+          {isAuth && (
             <button
               className="absolute bottom-2 right-2 bg-green-500 text-black p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               onClick={saveToPlayListHanlder}
             >
               <FaBookmark />
             </button>
-          )} */}
+          )}
         </div>
       </div>
       <p className="font-bold mt-2 mb-1">{name}</p>
