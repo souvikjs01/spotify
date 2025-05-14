@@ -5,7 +5,8 @@ import { useSongData } from "../context/SongContext";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-const server = "http://localhost:8080";
+// const server = "http://13.201.49.225";
+const server = "http://localhost:3000";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ export default function Admin() {
     setBtnLoading(true);
 
     try {
-      const { data } = await axios.post(`${server}/api/v1/album/new`, formData, {
+      const { data } = await axios.post(`${server}/api/v2/album/new`, formData, {
         headers: {
             Authorization: localStorage.getItem("token"),
         },
@@ -68,7 +69,7 @@ export default function Admin() {
     setBtnLoading(true);
 
     try {
-      const { data } = await axios.post(`${server}/api/v1/song/new`, formData, {
+      const { data } = await axios.post(`${server}/api/v2/song/new`, formData, {
         headers: {
           Authorization: localStorage.getItem("token"),
         },
@@ -96,7 +97,7 @@ export default function Admin() {
     setBtnLoading(true);
 
     try {
-      const { data } = await axios.post(`${server}/api/v1/song/${id}`, formData, {
+      const { data } = await axios.post(`${server}/api/v2/song/${id}`, formData, {
           headers: {
             Authorization: localStorage.getItem("token"),
           },
@@ -117,7 +118,7 @@ export default function Admin() {
     if (confirm("Are you sure you want to delete this album?")) {
       setBtnLoading(true);
       try {
-        const { data } = await axios.delete(`${server}/api/v1/album/${id}`, {
+        const { data } = await axios.delete(`${server}/api/v2/album/${id}`, {
           headers: {
             token: localStorage.getItem("token"),
           },
@@ -138,7 +139,7 @@ export default function Admin() {
     if (confirm("Are you sure you want to delete this song?")) {
       setBtnLoading(true);
       try {
-        const { data } = await axios.delete(`${server}/api/v1/song/${id}`, {
+        const { data } = await axios.delete(`${server}/api/v2/song/${id}`, {
           headers: {
             token: localStorage.getItem("token"),
           },

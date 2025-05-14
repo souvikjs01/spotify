@@ -22,7 +22,7 @@ const app = express()
 app.use(cors())
 const port = process.env.PORT || 8090
 app.use(express.json())
-app.use("/api/v1", adminRoutes);
+app.use("/api/v2", adminRoutes);
 
 app.listen(port, () => {
     console.log(`Server is running on the port ${port}...`);

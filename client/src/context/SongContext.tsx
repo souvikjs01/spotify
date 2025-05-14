@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { Album, Song } from "../lib/types";
 import axios from "axios";
+// const server = "http://13.201.49.225";
 const server = "http://localhost:8080";
 
 
@@ -45,7 +46,7 @@ export const SongProvider: React.FC<SongProviderProps> = ({children}) => {
 
     const fetchSongs = useCallback(async () => {
         try {
-            const { data } = await axios.get<Song[]>(`${server}/api/v1/song/all`);
+            const { data } = await axios.get<Song[]>(`${server}/api/v2/song/all`);
             setSongs(data);
             if(data.length > 0) {
                 setSelectedSong(data[0].id.toString())
@@ -60,7 +61,7 @@ export const SongProvider: React.FC<SongProviderProps> = ({children}) => {
 
     const fetchAlbums = useCallback(async () => {
         try {
-            const { data } = await axios.get<Album[]>(`${server}/api/v1/album/all`);
+            const { data } = await axios.get<Album[]>(`${server}/api/v2/album/all`);
             setAlbums(data)
         } catch (error) {
             console.log(error);
@@ -90,7 +91,7 @@ export const SongProvider: React.FC<SongProviderProps> = ({children}) => {
     const fetchSingleSong = useCallback(async () => {
         try {
             if(!selectedSong) return;
-            const { data } = await axios.get<Song>(`${server}/api/v1/song/${selectedSong}`);
+            const { data } = await axios.get<Song>(`${server}/api/v2/song/${selectedSong}`);
             setSong(data)
         } catch (error) {
             console.log(error);
@@ -101,7 +102,7 @@ export const SongProvider: React.FC<SongProviderProps> = ({children}) => {
 
     const fetchAlbumsongs = useCallback(async (id: string) => {
         try {
-            const { data } = await axios.get<{songs: Song[]; album: Album}>(`${server}/api/v1/album/${id}`);
+            const { data } = await axios.get<{songs: Song[]; album: Album}>(`${server}/api/v2/album/${id}`);
             console.log(data);
             setAlbumSongs(data.songs);
             setAlbumData(data.album);        
